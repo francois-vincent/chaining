@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+from operator import add
 
 from chaining import Chain, RecastingChain, HistoryChain, SequenceChain, MappingChain
+from filters import Filter, Select
 
 
 class toto(object):
@@ -112,6 +114,30 @@ class SequenceChainTestCase(unittest.TestCase):
     def test_first(self):
         self.assertEqual(SequenceChain([None, None, 'a']).first(f=lambda x: x is not None), 'a')
 
+    def test_aggregate(self):
+        l = [1, 2, 3]
+        self.assertEqual(SequenceChain(l).aggregate(), ((1, 2), 3))
+        self.assertEqual(SequenceChain(l).aggregate(op=add), 6)
+        self.assertEqual(SequenceChain(l).aggregate(f=bool, op=add), 3)
+
+    def test_where(self):
+        l = ['ab', 'bc', 'ca', 'AB']
+        self.assertListEqual(SequenceChain(l).where().reveal(), l)
+        self.assertListEqual(SequenceChain(l).where(Filter(eq='ab')).reveal(), ['ab'])
+        self.assertListEqual(SequenceChain(l).where(Filter(contains='a')).reveal(), ['ab', 'ca'])
+        self.assertListEqual(SequenceChain(l).where(Filter(icontains='a')).reveal(), ['ab', 'ca', 'AB'])
+        self.assertListEqual(SequenceChain(l).where(Filter(istartswith='a')).reveal(), ['ab', 'AB'])
+        self.assertListEqual(SequenceChain(l).where(Filter(contains='a', contains_='b')).reveal(), ['ab', 'bc', 'ca'])
+
+    def test_select(self):
+        l = [1, 2, 3]
+        self.assertListEqual(SequenceChain(l).select().reveal(), l)
+        l = [
+            dict(a=1, b=2, c=3),
+            dict(a=5, b=6, d=7)
+        ]
+        self.assertEqual(SequenceChain(l).select(Select('a')).reveal(), [{'a': 1}, {'a': 5}])
+        self.assertEqual(SequenceChain(l).select(Select('a', 'c')).reveal(), [{'a': 1, 'c': 3}, {'a': 5}])
 
 if __name__ == '__main__':
     unittest.main()

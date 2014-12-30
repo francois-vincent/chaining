@@ -3,7 +3,22 @@
 import unittest
 
 from chaining import MappingChain
-from filters import RegExp, Filter, RecordFilter, UnknownOperatorError
+from filters import RegExp, Filter, RecordFilter, UnknownOperatorError, Select
+
+
+class SelectTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.dict = dict(a=1, b=2, c=3)
+
+    def test_single_key(self):
+        self.assertDictEqual(Select('a')(self.dict), {'a': 1})
+
+    def test_multiple_keys(self):
+        self.assertDictEqual(Select('a', 'b')(self.dict), {'a': 1, 'b': 2})
+
+    def test_missing_key(self):
+        self.assertDictEqual(Select('z')(self.dict), {})
 
 
 class RegExpTestCase(unittest.TestCase):

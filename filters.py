@@ -11,12 +11,18 @@ class UnknownREFlagError(ValueError):
     pass
 
 
+def Select(*args):
+    def func(record):
+        return record.__class__((k, record[k]) for k in args if k in record)
+    return func
+
+
 class RegExp(object):
     """ Implements Regular expressions for searching into containers
     """
 
     def __init__(self, regexp, flags='', match=False):
-        """ You can specify re flags via keyword argument or inside the re itself (?aiLmsux).
+        """ You can specify re flags via keyword arguments or inside the re itself (?aiLmsux).
             Default evaluation mode is search, you can specify match via keyword argument.
         """
         self.match = match
@@ -48,6 +54,8 @@ class Filter(object):
         """
         self.terms = []
         for op, v in terms.iteritems():
+            # use '_xx' to differentiate terms with same operator
+            op = op.split('_')[0]
             if op == 'search':
                 val = RegExp(v)
             elif op == 'match':

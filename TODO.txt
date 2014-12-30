@@ -1,0 +1,3 @@
+
+test reuse of same filter
+in Chain, exceptions should be propagated to a handler (programmable, with a default vallue)

@@ -32,8 +32,16 @@ class Chain(object):
         return self
 
     def reveal(self, cls=None):
+        """ returns container from an iterator
+        """
         cls = cls or self._reveal_class
         return cls(self.wrapped)
+
+    def do(self, f=None):
+        if callable(f):
+            for x in self:
+                f(x)
+        return self
 
     def __str__(self):
         return str(self.wrapped)
